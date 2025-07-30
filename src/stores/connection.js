@@ -5,7 +5,7 @@ import axios from 'axios'
 export const useConnectionStore = defineStore('connection', () => {
   // State
   const apiUrl = ref('http://localhost:3000/api')
-  const connectionString = ref('Server=localhost;Database=TestDB;User Id=sa;Password=123456;Trust Server Certificate=true')
+  const connectionString = ref('Server=192.168.1.217;Database=TEST_PL;User Id=sa;Password=dsc@12345;Trust Server Certificate=true')
   const isBackendConnected = ref(false)
   const isDatabaseConnected = ref(false)
 

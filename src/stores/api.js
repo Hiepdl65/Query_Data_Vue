@@ -5,10 +5,11 @@ import axios from 'axios'
 export const useApiStore = defineStore('api', () => {
   // Connection State
   const apiUrl = ref('http://localhost:3000/api')
-  const connectionString = ref('Server=localhost;Database=TestDB;User Id=sa;Password=123456;Trust Server Certificate=true')
+  const connectionString = ref('DRIVER={ODBC Driver 18 for SQL Server};SERVER=192.168.1.217;DATABASE=TEST_PL;UID=sa;PWD=dsc@12345;TrustServerCertificate=yes;')
   const isBackendConnected = ref(false)
   const isDatabaseConnected = ref(false)
   const loading = ref(false)
+
 
   // Connection Status
   const connectionStatus = computed(() => ({
