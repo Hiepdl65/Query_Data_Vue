@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-export const useTemplateStore = defineStore('template', () => {
+export const useTemplatesStore = defineStore('templates', () => {
   // State
   const templates = ref([
     {
@@ -53,88 +53,56 @@ export const useTemplateStore = defineStore('template', () => {
       defaultValue: '1',
       whereTemplate: "TA001='{TA001}' and TA002='{TA002}'",
       example: "update PURTA set TA016='1' where TA001='A311' and TA002='250716005'"
-    },
-    {
-      id: 'PURI08',
-      name: 'PURI08 - Update trạng thái duyệt TE025',
-      description: 'Cập nhật trạng thái duyệt TE025',
-      table: 'PURTE',
-      column: 'TE025',
-      defaultValue: '1',
-      whereTemplate: "TE001='{TE001}' and TE002='{TE002}' and TE003='{TE003}'",
-      example: "update PURTE set TE025='1' where TE001='A331' and TE002='220223006' and TE003='0001'"
-    },
-    {
-      id: 'PURI13',
-      name: 'PURI13 - Update trạng thái duyệt TH058',
-      description: 'Cập nhật trạng thái duyệt TH058',
-      table: 'PURTH',
-      column: 'TH058',
-      defaultValue: '1',
-      whereTemplate: "TH001='{TH001}' and TH002='{TH002}' and TH003='{TH003}'",
-      example: "update PURTH set TH058='1' where TH001='A341' and TH002='201228010' and TH003='0005'"
-    },
-    {
-      id: 'INVMI08',
-      name: 'INVMI08 - Update trạng thái duyệt TA017',
-      description: 'Cập nhật trạng thái duyệt TA017 cho inventory',
-      table: 'INVTA',
-      column: 'TA017',
-      defaultValue: '1',
-      whereTemplate: "TA001='{TA001}' and TA002='{TA002}'",
-      example: "update INVTA set TA017='1' where TA001='1202' and TA002='250716018'"
-    },
-    {
-      id: 'INVMI05',
-      name: 'INVMI05 - Update trạng thái duyệt TA017',
-      description: 'Cập nhật trạng thái duyệt TA017 cho inventory',
-      table: 'INVTA',
-      column: 'TA017',
-      defaultValue: '1',
-      whereTemplate: "TA001='{TA001}' and TA002='{TA002}'",
-      example: "update INVTA set TA017='1' where TA001='1101' and TA002='210211002'"
-    },
-    {
-      id: 'ACPMI02',
-      name: 'ACPMI02 - Update trạng thái duyệt TA044',
-      description: 'Cập nhật trạng thái duyệt TA044',
-      table: 'ACPTA',
-      column: 'TA044',
-      defaultValue: '1',
-      whereTemplate: "TA001='{TA001}' and TA002='{TA002}'",
-      example: "update ACPTA set TA044='1' where TA001='A716' and TA002='220531055'"
-    },
-    {
-      id: 'PCMI07',
-      name: 'PCMI07 - Update trạng thái duyệt TF019',
-      description: 'Cập nhật trạng thái duyệt TF019',
-      table: 'PCMTF',
-      column: 'TF019',
-      defaultValue: '1',
-      whereTemplate: "TF001='{TF001}' and TF002='{TF002}'",
-      example: "update PCMTF set TF019='1' where TF001='I41' and TF002='220425001'"
     }
   ])
 
   const selectedTemplate = ref(null)
 
   // Computed
+  const allTemplates = computed(() => templates.value)
+  
+  const customTemplates = computed(() => 
+    templates.value.filter(t => t.id.startsWith('CUSTOM_'))
+  )
+
   const templateOptions = computed(() => 
     templates.value.map(t => ({ value: t.id, label: t.name }))
   )
 
   // Actions
-  const addTemplate = (template) => {
+  const templateById = (id) => {
+    return templates.value.find(t => t.id === id)
+  }
+
+  const selectTemplate = (templateId) => {
+    selectedTemplate.value = templateById(templateId)
+    return selectedTemplate.value
+  }
+
+  const addTemplate = (templateData) => {
     const newTemplate = {
-      ...template,
+      ...templateData,
       id: `CUSTOM_${Date.now()}`,
-      example: `update ${template.table} set ${template.column}='${template.defaultValue}' where ${template.whereTemplate}`
+      example: `update ${templateData.table} set ${templateData.column}='${templateData.defaultValue}' where ${templateData.whereTemplate}`
     }
     templates.value.push(newTemplate)
     return newTemplate
   }
 
-  const deleteTemplate = (templateId) => {
+  const updateTemplate = (templateId, templateData) => {
+    const index = templates.value.findIndex(t => t.id === templateId)
+    if (index > -1) {
+      templates.value[index] = {
+        ...templates.value[index],
+        ...templateData,
+        example: `update ${templateData.table} set ${templateData.column}='${templateData.defaultValue}' where ${templateData.whereTemplate}`
+      }
+      return templates.value[index]
+    }
+    return null
+  }
+
+  const removeTemplate = (templateId) => {
     const index = templates.value.findIndex(t => t.id === templateId)
     if (index > -1) {
       templates.value.splice(index, 1)
@@ -144,15 +112,6 @@ export const useTemplateStore = defineStore('template', () => {
       return true
     }
     return false
-  }
-
-  const getTemplateById = (id) => {
-    return templates.value.find(t => t.id === id)
-  }
-
-  const selectTemplate = (templateId) => {
-    selectedTemplate.value = getTemplateById(templateId)
-    return selectedTemplate.value
   }
 
   const parseWhereTemplate = (whereTemplate) => {
@@ -183,13 +142,16 @@ export const useTemplateStore = defineStore('template', () => {
     selectedTemplate,
     
     // Computed
+    allTemplates,
+    customTemplates,
     templateOptions,
     
     // Actions
-    addTemplate,
-    deleteTemplate,
-    getTemplateById,
+    templateById,
     selectTemplate,
+    addTemplate,
+    updateTemplate,
+    removeTemplate,
     parseWhereTemplate
   }
 })

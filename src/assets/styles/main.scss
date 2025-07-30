@@ -1,4 +1,4 @@
-@import './variables.scss';
+@use './variables.scss' as *;
 
 * {
   margin: 0;
@@ -17,7 +17,165 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   border-radius: $border-radius-xl;
   box-shadow: $shadow-lg;
   overflow: hidden;
+}
+
+// Forms
+.form-group {
+  margin-bottom: 25px;
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: $gray-700;
+    font-size: 1.1rem;
+  }
+
+  input,
+  textarea,
+  select {
+    width: 100%;
+    padding: $spacing-md;
+    border: 2px solid $gray-200;
+    border-radius: $border-radius;
+    font-size: 1rem;
+    transition: $transition;
+    background: $gray-50;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      background: $white;
+      transform: translateY(-2px);
+      box-shadow: $shadow-sm;
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+}
+
+.connection-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-lg;
+}
+
+// Buttons
+.btn {
+  background: $primary-gradient;
+  color: $white;
+  border: none;
+  padding: $spacing-md $spacing-xl;
+  border-radius: $border-radius-pill;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+  margin: $spacing-xs;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  &.btn-secondary {
+    background: $secondary-gradient;
+  }
+
+  &.btn-success {
+    background: $success-gradient;
+  }
+
+  &.btn-danger {
+    background: $danger-gradient;
+  }
+
+  &.btn-small {
+    padding: $spacing-sm $spacing-lg;
+    font-size: 0.9rem;
+    width: auto;
+  }
+
+  &.btn-full {
+    width: 100%;
+  }
+}
+
+// Tab content
+.tab-content {
+  padding: $spacing-xxl;
+}
+
+// Quick values
+.quick-values {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-sm;
+  flex-wrap: wrap;
+
+  .quick-value {
+    background: $gray-100;
+    border: 1px solid $gray-300;
+    border-radius: $spacing-lg;
+    padding: $spacing-xs $spacing-md;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+      background: $primary-color;
+      color: $white;
+    }
+  }
+}
+
+// Preview section
+.preview-section {
+  background: $gray-50;
+  border: 2px solid $gray-200;
+  border-radius: $border-radius-lg;
+  padding: $spacing-lg;
+  margin: $spacing-lg 0;
+
+  .preview-title {
+    font-weight: 600;
+    color: $primary-color;
+    margin-bottom: $spacing-md;
+    font-size: 1.1rem;
+  }
+
+  .sql-preview {
+    background: $gray-800;
+    color: #e2e8f0;
+    padding: $spacing-lg;
+    border-radius: $border-radius;
+    font-family: $font-mono;
+    font-size: 1rem;
+    line-height: 1.5;
+    overflow-x: auto;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .connection-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tab-content {
+    padding: $spacing-lg;
+  }
 }

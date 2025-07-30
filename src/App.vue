@@ -1,39 +1,44 @@
 <template>
   <div class="container">
     <TheHeader />
-    <TabNavigation />
+    <TabNavigation :active-tab="activeTab" @tab-change="switchTab" />
     
-    <div v-if="appStore.activeTab === 'connection'" class="tab-content">
-      <ConnectionTab />
-    </div>
+    <div class="tab-content">
+      <!-- Connection Tab -->
+      <ConnectionTab v-if="activeTab === 'connection'" />
 
-    <div v-if="appStore.activeTab === 'templates'" class="tab-content">
-      <h2>📋 Templates sẽ được thêm sau</h2>
-    </div>
+      <!-- Templates Tab -->
+      <TemplatesTab v-else-if="activeTab === 'templates'" />
 
-    <div v-if="appStore.activeTab === 'manual'" class="tab-content">
-      <h2>✏️ Manual Update sẽ được thêm sau</h2>
-    </div>
+      <!-- Manual Update Tab -->
+      <ManualUpdateTab v-else-if="activeTab === 'manual'" />
 
-    <div v-if="appStore.activeTab === 'batch'" class="tab-content">
-      <h2>📊 Batch Update sẽ được thêm sau</h2>
+      <!-- Batch Update Tab -->
+      <BatchUpdateTab v-else-if="activeTab === 'batch'" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-import { useAppStore } from './stores/app'
-import { useConnectionStore } from './stores/connection'
+import { ref, onMounted } from 'vue'
+import { useApiStore } from './stores/api.js'
 
 import TheHeader from './components/TheHeader.vue'
 import TabNavigation from './components/TabNavigation.vue'
-import ConnectionTab from './components/tabs/ConnectionTab.vue'
+import ConnectionTab from './components/ConnectionTab.vue'
+import TemplatesTab from './components/TemplatesTab.vue'
+import ManualUpdateTab from './components/ManualUpdate.vue'
+import BatchUpdateTab from './components/BatchUpdateTab.vue'
 
-const appStore = useAppStore()
-const connectionStore = useConnectionStore()
+const apiStore = useApiStore()
+const activeTab = ref('connection')
+
+const switchTab = (tabId) => {
+  activeTab.value = tabId
+}
 
 onMounted(async () => {
-  await connectionStore.testBackendConnection()
+  // Auto test backend connection
+  await apiStore.testBackendConnection()
 })
 </script>

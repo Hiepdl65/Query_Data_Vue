@@ -1,16 +1,33 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import axios from 'axios'
 
 export const useApiStore = defineStore('api', () => {
-  // State
+  // Connection State
   const apiUrl = ref('http://localhost:3000/api')
   const connectionString = ref('Server=localhost;Database=TestDB;User Id=sa;Password=123456;Trust Server Certificate=true')
   const isBackendConnected = ref(false)
   const isDatabaseConnected = ref(false)
   const loading = ref(false)
 
+  // Connection Status
+  const connectionStatus = computed(() => ({
+    backend: isBackendConnected.value,
+    database: isDatabaseConnected.value,
+    ready: isBackendConnected.value && isDatabaseConnected.value
+  }))
+
   // Actions
+  const setApiUrl = (url) => {
+    apiUrl.value = url.trim()
+    isBackendConnected.value = false
+  }
+
+  const setConnectionString = (conn) => {
+    connectionString.value = conn.trim()
+    isDatabaseConnected.value = false
+  }
+
   const makeRequest = async (endpoint, data = null, method = 'GET') => {
     const url = `${apiUrl.value}${endpoint}`
     const options = {
@@ -50,6 +67,10 @@ export const useApiStore = defineStore('api', () => {
       return { success: false, message: '❌ Vui lòng kết nối backend trước' }
     }
 
+    if (!connectionString.value.trim()) {
+      return { success: false, message: '❌ Vui lòng nhập connection string' }
+    }
+
     loading.value = true
     try {
       const result = await makeRequest('/test-connection', {
@@ -71,10 +92,11 @@ export const useApiStore = defineStore('api', () => {
   }
 
   const executeUpdate = async (updateData) => {
-    if (!isBackendConnected.value || !isDatabaseConnected.value) {
+    if (!connectionStatus.value.ready) {
       return { success: false, message: '❌ Vui lòng kết nối backend và database trước' }
     }
 
+    loading.value = true
     try {
       const result = await makeRequest('/update', {
         connectionString: connectionString.value,
@@ -88,6 +110,8 @@ export const useApiStore = defineStore('api', () => {
       }
     } catch (error) {
       return { success: false, message: `❌ Cập nhật thất bại: ${error.message}` }
+    } finally {
+      loading.value = false
     }
   }
 
@@ -98,8 +122,11 @@ export const useApiStore = defineStore('api', () => {
     isBackendConnected,
     isDatabaseConnected,
     loading,
+    connectionStatus,
     
     // Actions
+    setApiUrl,
+    setConnectionString,
     testBackendConnection,
     testDatabaseConnection,
     executeUpdate,
