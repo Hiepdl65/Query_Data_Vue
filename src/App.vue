@@ -17,6 +17,9 @@
 
           <!-- Batch Update Tab -->
           <BatchUpdateTab v-else-if="activeTab === 'batch'" />
+
+          <!-- Query Data Tab -->
+          <QueryTab v-else-if="activeTab === 'query'" />
         </div>
       </main>
     </div>
@@ -33,6 +36,7 @@ import ConnectionTab from './components/ConnectionTab.vue'
 import TemplatesTab from './components/TemplatesTab.vue'
 import ManualUpdateTab from './components/ManualUpdate.vue'
 import BatchUpdateTab from './components/BatchUpdateTab.vue'
+import QueryTab from './components/QueryTab.vue'
 
 console.log('🔄 App.vue loading...')
 

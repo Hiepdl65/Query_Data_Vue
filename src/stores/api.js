@@ -238,9 +238,110 @@ export const useApiStore = defineStore('api', () => {
       ].filter(Boolean)
     }
   }
+  const executeCustomQuery = async (queryData) => {
+    if (!connectionStatus.value.ready) {
+      return { success: false, message: '❌ Please connect to backend and database first' }
+    }
+
+    if (!connectionString.value) {
+      return { success: false, message: '❌ Invalid connection string. Please check credentials.' }
+    }
+
+    loading.value = true
+    try {
+      console.log('🔄 Executing custom query:', queryData)
+      const result = await makeRequest('/query', {
+        connectionString: connectionString.value,
+        ...queryData
+      }, 'POST')
+
+      console.log('✅ Query executed successfully')
+      return {
+        success: true,
+        message: '✅ Query successful!',
+        data: result
+      }
+    } catch (error) {
+      console.error('❌ Query failed:', error)
+      return { success: false, message: `❌ Query failed: ${error.message}` }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const exportQueryToExcel = async (exportData) => {
+    if (!connectionStatus.value.ready) {
+      throw new Error('Please connect to backend and database first')
+    }
+
+    if (!connectionString.value) {
+      throw new Error('Invalid connection string. Please check credentials.')
+    }
+
+    try {
+      console.log('🔄 Exporting query to Excel:', exportData)
+      
+      const response = await axios({
+        method: 'POST',
+        url: `${apiUrl.value}/export-excel`,
+        data: {
+          connectionString: connectionString.value,
+          ...exportData
+        },
+        responseType: 'blob',
+        timeout: 60000 // 60 second timeout for large exports
+      })
+
+      // Create download link
+      const blob = new Blob([response.data], { 
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${exportData.filename || 'query_results'}.xlsx`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+
+      console.log('✅ Excel exported successfully')
+      return { success: true, message: '✅ Excel exported successfully!' }
+    } catch (error) {
+      console.error('❌ Excel export failed:', error)
+      throw new Error(`Excel export failed: ${error.message}`)
+    }
+  }
+
+  const getTablesInfo = async () => {
+    if (!connectionStatus.value.ready) {
+      return { success: false, message: '❌ Please connect to backend and database first' }
+    }
+
+    if (!connectionString.value) {
+      return { success: false, message: '❌ Invalid connection string. Please check credentials.' }
+    }
+
+    try {
+      console.log('🔄 Getting tables info...')
+      const result = await makeRequest('/tables-info', {
+        connectionString: connectionString.value
+      }, 'POST')
+
+      console.log('✅ Tables info retrieved successfully')
+      return {
+        success: true,
+        message: '✅ Tables info retrieved!',
+        data: result
+      }
+    } catch (error) {
+      console.error('❌ Failed to get tables info:', error)
+      return { success: false, message: `❌ Failed to get tables info: ${error.message}` }
+    }
+  }
 
   return {
-    // State
+// State
     apiUrl,
     serverConfig,
     availableDatabases,
@@ -258,6 +359,9 @@ export const useApiStore = defineStore('api', () => {
     testBackendConnection,
     testDatabaseConnection,
     executeUpdate,
+    executeCustomQuery,
+    exportQueryToExcel,
+    getTablesInfo,
     makeRequest,
     validateCredentials
   }

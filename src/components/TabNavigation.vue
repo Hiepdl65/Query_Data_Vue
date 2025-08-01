@@ -52,7 +52,8 @@ const tabs = [
   { id: 'connection', icon: '🔗', label: 'Connect Databases' },
   { id: 'templates', icon: '📋', label: 'Templates' },
   { id: 'manual', icon: '✏️', label: 'Manual Update' },
-  { id: 'batch', icon: '📊', label: 'Batch Update' }
+  { id: 'batch', icon: '📊', label: 'Batch Update' },
+  { id: 'query', icon: '🔍', label: 'Query Data' }
 ]
 
 const selectTab = (tabId) => {
@@ -159,7 +160,7 @@ const closeMobileMenu = () => {
 /* Tablet */
 @media (max-width: 991px) {
   .tab {
-    padding: 15px 10px;
+    padding: 15px 8px;
     font-size: 0.9rem;
   }
   
@@ -168,7 +169,7 @@ const closeMobileMenu = () => {
   }
   
   .tab-label {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 }
 
@@ -245,14 +246,14 @@ const closeMobileMenu = () => {
   }
   
   .tab-label {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
   }
 }
 
 /* Desktop styles for larger screens */
 @media (min-width: 1200px) {
   .tab {
-    padding: 25px 30px;
+    padding: 25px 20px;
   }
   
   .tab-icon {
@@ -260,7 +261,7 @@ const closeMobileMenu = () => {
   }
   
   .tab-label {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 }
 </style>
