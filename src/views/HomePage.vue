@@ -10,7 +10,7 @@
         }"></span>
         Backend: {{ apiStore.isBackendConnected ? 'Đã kết nối' : 'Chưa kết nối' }}
         <span v-if="apiStore.isDatabaseConnected" class="status-indicator status-connected ml-20"></span>
-        <span v-if="apiStore.isDatabaseConnected">Database: Đã kết nối</span>
+        <span v-if="apiStore.isDatabaseConnected">Database: Connected</span>
       </div>
     </div>
     
@@ -60,7 +60,7 @@ const activeTab = ref('connection')
 const selectedTemplateFromTemplates = ref('')
 
 const tabs = [
-  { id: 'connection', label: '🔗 Kết nối' },
+  { id: 'connection', label: '🔗 Connect Databases' },
   { id: 'templates', label: '📋 Templates' },
   { id: 'manual', label: '✏️ Manual Update' },
   { id: 'batch', label: '📊 Batch Update' }

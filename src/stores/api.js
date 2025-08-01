@@ -6,7 +6,7 @@ export const useApiStore = defineStore('api', () => {
   // Connection State
   const apiUrl = ref('http://localhost:3000/api')
   
-  // Server configuration
+  // Server configuration - NO DEFAULT CREDENTIALS
   const serverConfig = ref({
     server: '192.168.1.217',
     username: '',
@@ -20,9 +20,12 @@ export const useApiStore = defineStore('api', () => {
   const loading = ref(false)
 
   // Computed connection string
-  const connectionString = computed(() => 
-    `DRIVER={ODBC Driver 18 for SQL Server};SERVER=${serverConfig.value.server};DATABASE=${serverConfig.value.database};UID=${serverConfig.value.username};PWD=${serverConfig.value.password};TrustServerCertificate=yes;`
-  )
+  const connectionString = computed(() => {
+    if (!serverConfig.value.server || !serverConfig.value.username || !serverConfig.value.password) {
+      return ''
+    }
+    return `DRIVER={ODBC Driver 18 for SQL Server};SERVER=${serverConfig.value.server};DATABASE=${serverConfig.value.database};UID=${serverConfig.value.username};PWD=${serverConfig.value.password};TrustServerCertificate=yes;`
+  })
 
   // Connection Status
   const connectionStatus = computed(() => ({
@@ -45,6 +48,12 @@ export const useApiStore = defineStore('api', () => {
   const setServerConfig = (config) => {
     Object.assign(serverConfig.value, config)
     isDatabaseConnected.value = false
+    console.log('🔧 Server config updated:', {
+      server: config.server,
+      username: config.username,
+      password: config.password ? '***' : '',
+      database: config.database
+    })
   }
 
   const makeRequest = async (endpoint, data = null, method = 'GET') => {
@@ -88,11 +97,11 @@ export const useApiStore = defineStore('api', () => {
       await makeRequest('/health')
       isBackendConnected.value = true
       console.log('✅ Backend connected successfully')
-      return { success: true, message: '✅ Backend đã sẵn sàng!' }
+      return { success: true, message: '✅ Backend connected successfully!' }
     } catch (error) {
       console.error('❌ Backend connection failed:', error)
       isBackendConnected.value = false
-      return { success: false, message: `❌ Không thể kết nối backend: ${error.message}` }
+      return { success: false, message: `❌ Cannot connect to backend: ${error.message}` }
     } finally {
       loading.value = false
     }
@@ -100,12 +109,23 @@ export const useApiStore = defineStore('api', () => {
 
   const listDatabases = async () => {
     if (!isBackendConnected.value) {
-      return { success: false, message: '❌ Vui lòng kết nối backend trước' }
+      return { success: false, message: '❌ Please connect to backend first' }
+    }
+
+    // Validate required credentials
+    if (!serverConfig.value.server || !serverConfig.value.username || !serverConfig.value.password) {
+      return { success: false, message: '❌ Please provide server address, username, and password' }
     }
 
     loading.value = true
     try {
       console.log('🔄 Listing databases...')
+      console.log('📡 Using credentials:', {
+        server: serverConfig.value.server,
+        username: serverConfig.value.username,
+        password: '***'
+      })
+      
       const result = await makeRequest('/list-databases', {
         server: serverConfig.value.server,
         username: serverConfig.value.username,
@@ -116,12 +136,13 @@ export const useApiStore = defineStore('api', () => {
       console.log('✅ Databases loaded:', availableDatabases.value.length)
       return {
         success: true,
-        message: `✅ Tìm thấy ${result.count} databases`,
+        message: `✅ Found ${result.count} databases on server ${serverConfig.value.server}`,
         databases: result.databases
       }
     } catch (error) {
       console.error('❌ Failed to list databases:', error)
-      return { success: false, message: `❌ Không thể lấy danh sách database: ${error.message}` }
+      availableDatabases.value = []
+      return { success: false, message: `❌ Cannot list databases: ${error.message}` }
     } finally {
       loading.value = false
     }
@@ -129,17 +150,24 @@ export const useApiStore = defineStore('api', () => {
 
   const testDatabaseConnection = async () => {
     if (!isBackendConnected.value) {
-      return { success: false, message: '❌ Vui lòng kết nối backend trước' }
+      return { success: false, message: '❌ Please connect to backend first' }
     }
 
-    if (!serverConfig.value.database) {
-      return { success: false, message: '❌ Vui lòng chọn database' }
+    // Validate all required fields
+    if (!serverConfig.value.server || !serverConfig.value.username || 
+        !serverConfig.value.password || !serverConfig.value.database) {
+      return { success: false, message: '❌ Please provide all connection details: server, username, password, and database' }
     }
 
     loading.value = true
     try {
       console.log('🔄 Testing database connection...')
-      console.log('📡 Server config:', serverConfig.value)
+      console.log('📡 Connection details:', {
+        server: serverConfig.value.server,
+        database: serverConfig.value.database,
+        username: serverConfig.value.username,
+        password: '***'
+      })
       
       const result = await makeRequest('/test-database-access', {
         server: serverConfig.value.server,
@@ -152,13 +180,16 @@ export const useApiStore = defineStore('api', () => {
       console.log('✅ Database connected successfully')
       return {
         success: true,
-        message: `✅ Database ${serverConfig.value.database} kết nối thành công!\nServer: ${result.serverInfo?.server}\nTables: ${result.serverInfo?.tableCount}`,
+        message: `✅ Database ${serverConfig.value.database} connected successfully!\n` +
+                `Server: ${result.serverInfo?.server || serverConfig.value.server}\n` +
+                `User: ${result.serverInfo?.currentUser || serverConfig.value.username}\n` +
+                `Tables: ${result.serverInfo?.tableCount || 'N/A'}`,
         data: result
       }
     } catch (error) {
       console.error('❌ Database connection failed:', error)
       isDatabaseConnected.value = false
-      return { success: false, message: `❌ Kết nối database thất bại: ${error.message}` }
+      return { success: false, message: `❌ Database connection failed: ${error.message}` }
     } finally {
       loading.value = false
     }
@@ -166,7 +197,11 @@ export const useApiStore = defineStore('api', () => {
 
   const executeUpdate = async (updateData) => {
     if (!connectionStatus.value.ready) {
-      return { success: false, message: '❌ Vui lòng kết nối backend và database trước' }
+      return { success: false, message: '❌ Please connect to backend and database first' }
+    }
+
+    if (!connectionString.value) {
+      return { success: false, message: '❌ Invalid connection string. Please check credentials.' }
     }
 
     loading.value = true
@@ -180,14 +215,27 @@ export const useApiStore = defineStore('api', () => {
       console.log('✅ Update executed successfully')
       return {
         success: true,
-        message: '✅ Cập nhật thành công!',
+        message: '✅ Update successful!',
         data: result
       }
     } catch (error) {
       console.error('❌ Update failed:', error)
-      return { success: false, message: `❌ Cập nhật thất bại: ${error.message}` }
+      return { success: false, message: `❌ Update failed: ${error.message}` }
     } finally {
       loading.value = false
+    }
+  }
+
+  // Validation helper
+  const validateCredentials = () => {
+    const { server, username, password } = serverConfig.value
+    return {
+      isValid: !!(server && username && password),
+      missing: [
+        !server && 'server address',
+        !username && 'username', 
+        !password && 'password'
+      ].filter(Boolean)
     }
   }
 
@@ -210,6 +258,7 @@ export const useApiStore = defineStore('api', () => {
     testBackendConnection,
     testDatabaseConnection,
     executeUpdate,
-    makeRequest
+    makeRequest,
+    validateCredentials
   }
 })

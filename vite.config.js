@@ -12,7 +12,8 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@import "@/assets/styles/variables.scss";`
+        // Fix for Sass deprecation warning
+        api: 'modern-compiler' // or 'modern'
       }
     }
   },

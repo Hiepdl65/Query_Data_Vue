@@ -53,6 +53,16 @@ export const useTemplatesStore = defineStore('templates', () => {
       defaultValue: '1',
       whereTemplate: "TA001='{TA001}' and TA002='{TA002}'",
       example: "update PURTA set TA016='1' where TA001='A311' and TA002='250716005'"
+    },
+    {
+      id: 'PURI13',
+      name: 'PURI13 - Update trạng thái duyệt TH058',
+      description: 'Cập nhật trạng thái duyệt TH058',
+      table: 'PURTH',
+      column: 'TH058',
+      defaultValue: '1',
+      whereTemplate: "TH001='{TH001}' and TH002='{TH002} and TH003='{TH003}'",
+      example: "update PURTH set TH058='1' where TH001='A341' and TH002='201228010'and TH003='0005'"
     }
   ])
 

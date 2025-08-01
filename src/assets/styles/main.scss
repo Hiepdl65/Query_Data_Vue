@@ -62,7 +62,7 @@ body {
 
 .connection-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: $spacing-lg;
 }
 
@@ -77,6 +77,8 @@ body {
   cursor: pointer;
   transition: $transition;
   margin: $spacing-xs;
+  display: inline-block;
+  text-align: center;
 
   &:hover {
     transform: translateY(-3px);
@@ -161,6 +163,8 @@ body {
     font-size: 1rem;
     line-height: 1.5;
     overflow-x: auto;
+    word-break: break-all;
+    white-space: pre-wrap;
   }
 }
 
@@ -191,12 +195,191 @@ body {
   border: 2px solid #bee5eb;
 }
 
-@media (max-width: 768px) {
+// ========== RESPONSIVE BREAKPOINTS ==========
+
+// Large Desktop (≥1200px) - Default styles above
+
+// Medium Desktop (992px - 1199px)
+@media (max-width: 1199px) {
+  .container {
+    margin: 0 $spacing-md;
+  }
+  
+  .tab-content {
+    padding: $spacing-xl;
+  }
+}
+
+// Tablet (768px - 991px)
+@media (max-width: 991px) {
+  body {
+    padding: $spacing-md;
+  }
+  
+  .container {
+    margin: 0;
+    border-radius: $border-radius-lg;
+  }
+  
   .connection-grid {
     grid-template-columns: 1fr;
+    gap: $spacing-md;
   }
   
   .tab-content {
     padding: $spacing-lg;
+  }
+  
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    padding: $spacing-sm;
+    font-size: 0.95rem;
+  }
+  
+  .btn {
+    padding: $spacing-sm $spacing-lg;
+    font-size: 1rem;
+  }
+  
+  .preview-section .sql-preview {
+    padding: $spacing-md;
+    font-size: 0.9rem;
+  }
+}
+
+// Mobile Large (576px - 767px)
+@media (max-width: 767px) {
+  body {
+    padding: $spacing-sm;
+  }
+  
+  .container {
+    border-radius: $border-radius;
+  }
+  
+  .tab-content {
+    padding: $spacing-md;
+  }
+  
+  .form-group {
+    margin-bottom: $spacing-lg;
+    
+    label {
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+    
+    input,
+    textarea,
+    select {
+      padding: 12px;
+      font-size: 0.9rem;
+    }
+  }
+  
+  .btn {
+    padding: 12px $spacing-lg;
+    font-size: 0.95rem;
+    
+    &.btn-small {
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+  }
+  
+  .quick-values {
+    gap: 6px;
+    
+    .quick-value {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+    }
+  }
+  
+  .preview-section {
+    padding: $spacing-md;
+    margin: $spacing-md 0;
+    
+    .preview-title {
+      font-size: 1rem;
+    }
+    
+    .sql-preview {
+      padding: $spacing-sm;
+      font-size: 0.85rem;
+    }
+  }
+  
+  .result {
+    padding: $spacing-md;
+    font-size: 0.9rem;
+  }
+}
+
+// Mobile Small (≤575px)
+@media (max-width: 575px) {
+  body {
+    padding: 8px;
+  }
+  
+  .container {
+    border-radius: 10px;
+  }
+  
+  .tab-content {
+    padding: $spacing-sm;
+  }
+  
+  .form-group {
+    margin-bottom: $spacing-md;
+    
+    label {
+      font-size: 0.95rem;
+    }
+    
+    input,
+    textarea,
+    select {
+      padding: 10px;
+      font-size: 0.85rem;
+    }
+  }
+  
+  .btn {
+    padding: 10px $spacing-md;
+    font-size: 0.9rem;
+    margin: 4px;
+    
+    &.btn-small {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+    }
+  }
+  
+  .quick-values {
+    flex-direction: column;
+    gap: 4px;
+    
+    .quick-value {
+      text-align: center;
+      padding: 8px;
+    }
+  }
+  
+  .preview-section {
+    padding: $spacing-sm;
+    
+    .sql-preview {
+      padding: 10px;
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+  }
+  
+  .result {
+    padding: $spacing-sm;
+    font-size: 0.85rem;
+    line-height: 1.5;
   }
 }

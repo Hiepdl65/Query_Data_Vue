@@ -193,10 +193,11 @@ const sqlPreview = ref('-- SQL sẽ được hiển thị tại đây khi bạn 
 const result = ref({ message: '', type: 'info' })
 
 const quickValues = [
-  { label: "Approved ('1')", value: "'1'" },
   { label: "Not Approved ('N')", value: "'N'" },
-  { label: "Yes ('Y')", value: "'Y'" },
-  { label: "Zero ('0')", value: "'0'" }
+  { label: "Approved ('1')", value: "'1'" },
+  { label: "Pending processing ('0')", value: "'0'" },
+  { label: "Yes ('Y')", value: "'Y'" }
+  
 ]
 
 // Computed
